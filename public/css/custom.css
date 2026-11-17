@@ -1,0 +1,84 @@
+:root {
+    --theme-primary: #6D57D6;
+    --theme-secondary: #586BD6;
+    --theme-accent: #A372D6;
+    --theme-pink: #C161D6;
+}
+
+/* ===== NAVBAR AT BUTTONS ===== */
+.app-navbar { background-color: var(--theme-primary); }
+
+.btn-theme {
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+    color: #fff;
+}
+.btn-theme:hover { background-color: var(--theme-secondary); border-color: var(--theme-secondary); color: #fff; }
+
+.btn-outline-theme { color: var(--theme-primary); border-color: var(--theme-primary); }
+.btn-outline-theme:hover { background-color: var(--theme-primary); color: #fff; }
+
+/* ===== FORM FOCUS ===== */
+.form-control:focus, .form-select:focus {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 0.2rem rgba(109, 87, 214, 0.25);
+}
+
+/* ===== LOW STOCK ===== */
+.row-alert { background-color: #fff3cd !important; }
+.alert-low-stock { border-left: 5px solid var(--theme-pink); }
+
+/* ===== TABLE TRANSITION ===== */
+.table-hover tbody tr { transition: background-color 0.2s ease; }
+
+/* ===== AUTH PAGES (login, register, forgot password) ===== */
+.auth-wrapper {
+    background: linear-gradient(135deg, #6D57D6 0%, #A372D6 100%);
+}
+
+.auth-title {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.auth-subtitle {
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+}
+
+.auth-card {
+    background-color: #fff;
+    border-radius: 12px;
+}
+
+/* Breeze primary buttons -> theme color */
+.auth-card button[type="submit"],
+.auth-card .bg-gray-800 {
+    background-color: #6D57D6 !important;
+    color: #fff !important;
+    transition: background-color 0.2s ease;
+}
+
+.auth-card button[type="submit"]:hover,
+.auth-card .bg-gray-800:hover {
+    background-color: #586BD6 !important;
+}
+
+/* Input focus */
+.auth-card input:focus {
+    border-color: #6D57D6 !important;
+    box-shadow: 0 0 0 3px rgba(109, 87, 214, 0.25) !important;
+}
+
+/* Links at checkbox */
+.auth-card a { color: #6D57D6; }
+.auth-card a:hover { color: #586BD6; }
+.auth-card input[type="checkbox"] { color: #6D57D6; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 576px) {
+    .auth-title { font-size: 1.5rem; }
+    h2 { font-size: 1.4rem; }
+}

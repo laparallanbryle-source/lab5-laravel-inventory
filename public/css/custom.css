@@ -28,8 +28,17 @@
 .row-alert { background-color: #fff3cd !important; }
 .alert-low-stock { border-left: 5px solid var(--theme-pink); }
 
-/* ===== TABLE TRANSITION ===== */
+/* ===== CARDS AT TABLES ===== */
+.card { border: none; border-radius: 10px; }
+
+.table thead th {
+    background-color: var(--theme-primary);
+    color: #fff;
+    border: none;
+}
+
 .table-hover tbody tr { transition: background-color 0.2s ease; }
+.table-hover tbody tr:hover { background-color: rgba(109, 87, 214, 0.08); }
 
 /* ===== AUTH PAGES (login, register, forgot password) ===== */
 .auth-wrapper {

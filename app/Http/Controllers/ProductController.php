@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -54,7 +55,7 @@ class ProductController extends Controller
     // READ: detalye ng isang product
     public function show(Product $product)
     {
-        $transactions = $product->transactions()->latest()->take(10)->get();
+        $transactions = $product->transactions()->with('user')->latest()->take(10)->get();
         return view('products.show', compact('product', 'transactions'));
     }
 
@@ -83,6 +84,37 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')
             ->with('success', 'Product deleted successfully!');
+    }
+
+    // STOCK IN / OUT: nag-a-update ng quantity at nagtatala ng transaction
+    public function adjustStock(Request $request, Product $product)
+    {
+        $data = $request->validate([
+            'type'      => 'required|in:in,out',
+            'quantity'  => 'required|integer|min:1',
+            'reference' => 'nullable|string|max:255',
+        ]);
+
+        if ($data['type'] === 'out' && $data['quantity'] > $product->quantity) {
+            return back()
+                ->withErrors(['quantity' => 'Stock out exceeds current stock (' . $product->quantity . ').'])
+                ->withInput();
+        }
+
+        DB::transaction(function () use ($data, $product, $request) {
+            $product->quantity += $data['type'] === 'in' ? $data['quantity'] : -$data['quantity'];
+            $product->save();
+
+            $product->transactions()->create([
+                'type'      => $data['type'],
+                'quantity'  => $data['quantity'],
+                'reference' => $data['reference'] ?? null,
+                'user_id'   => $request->user()->id,
+            ]);
+        });
+
+        return redirect()->route('products.show', $product)
+            ->with('success', 'Stock updated successfully!');
     }
 
     // Validation rules (iisa lang para sa store at update)

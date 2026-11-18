@@ -39,20 +39,56 @@
     </div>
 </div>
 
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5>Adjust Stock</h5>
+        <form method="POST" action="{{ route('products.stock', $product) }}" class="row g-2 align-items-start">
+            @csrf
+            <div class="col-md-3">
+                <select name="type" class="form-select @error('type') is-invalid @enderror">
+                    <option value="in" @selected(old('type') === 'in')>Stock In (+)</option>
+                    <option value="out" @selected(old('type') === 'out')>Stock Out (−)</option>
+                </select>
+                @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="quantity" value="{{ old('quantity') }}" min="1" placeholder="Quantity"
+                       class="form-control @error('quantity') is-invalid @enderror">
+                @error('quantity') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="reference" value="{{ old('reference') }}" placeholder="Reference (e.g. PO-1001)"
+                       class="form-control @error('reference') is-invalid @enderror">
+                @error('reference') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-theme w-100">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <h5>Recent Transactions</h5>
 <div class="table-responsive">
     <table class="table table-sm bg-white shadow-sm">
-        <thead><tr><th>Date</th><th>Type</th><th>Qty</th><th>Reference</th></tr></thead>
+        <thead><tr><th>Date</th><th>Type</th><th>Qty</th><th>Reference</th><th>By</th></tr></thead>
         <tbody>
             @forelse ($transactions as $t)
                 <tr>
                     <td>{{ $t->created_at->format('M d, Y h:i A') }}</td>
-                    <td>{{ strtoupper($t->type) }}</td>
+                    <td>
+                        @if ($t->type === 'in')
+                            <span class="badge bg-success">IN</span>
+                        @else
+                            <span class="badge bg-danger">OUT</span>
+                        @endif
+                    </td>
                     <td>{{ $t->quantity }}</td>
                     <td>{{ $t->reference ?? '—' }}</td>
+                    <td>{{ $t->user->name ?? '—' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="4" class="text-center text-muted">No transactions yet.</td></tr>
+                <tr><td colspan="5" class="text-center text-muted">No transactions yet.</td></tr>
             @endforelse
         </tbody>
     </table>

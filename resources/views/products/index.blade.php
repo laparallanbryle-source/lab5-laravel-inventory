@@ -1,123 +1,142 @@
-{{-- Ginagamit ang master layout na layouts/inventory.blade.php (navbar, footer, Bootstrap). Ang laman ng page na ito ay ilalagay sa @yield('content') doon. --}}
+{{-- Ginagamit ang master layout (navbar, footer, Bootstrap). --}}
 @extends('layouts.inventory')
 
-{{-- Ipinapadala ang pamagat ng page sa @yield('title') ng layout. Lalabas sa browser tab bilang "Products - Hardware IMS". --}}
+{{-- Pamagat sa browser tab. --}}
 @section('title', 'Products')
 
-{{-- Simula ng laman na ilalagay sa butas na @yield('content') ng layout. --}}
+{{-- Simula ng laman na ilalagay sa content area ng layout. --}}
 @section('content')
 
-{{-- HEADER NG PAGE: pamagat sa kaliwa at Add Product button sa kanan. d-flex + justify-content-between = magkabilang dulo. mb-3 = espasyo sa ibaba. --}}
+{{-- HIGHLIGHT: function na nagpapakulay (dilaw/lila) sa hinanap na salita. --}}
+@php
+    $highlight = function ($text) {
+        // Hinanap na salita ng user.
+        $q = request('search');
+        // e() = ine-escape ang HTML para ligtas laban sa XSS (hindi tatakbo ang kahina-hinalang code).
+        $safe = e($text);
+        // Kung walang hinanap, ibalik ang text nang walang highlight.
+        if (!$q) return $safe;
+        // Ibalot ang tugma sa <mark> (hindi sensitibo sa laki ng letra). preg_quote = para ituring na ordinaryong text ang mga espesyal na simbolo.
+        return preg_replace('/(' . preg_quote(e($q), '/') . ')/i', '<mark>$1</mark>', $safe);
+    };
+@endphp
+
+{{-- HEADER NG PAGE: pamagat sa kaliwa at mga button sa kanan. --}}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    {{-- Pamagat ng page. mb-0 = tinatanggal ang espasyo sa ibaba para pantay sa button. --}}
     <h2 class="mb-0">Products</h2>
-    {{-- Link papunta sa form ng pagdagdag ng product (GET /products/create). Ang btn-theme ay ang purple na button mula sa custom.css. --}}
-    <a href="{{ route('products.create') }}" class="btn btn-theme">+ Add Product</a>
+    <div class="d-flex gap-2">
+        {{-- Export CSV: ipinapasa ang kasalukuyang filters (request()->query()) kaya ang nakikita mo ang ie-export. --}}
+        <a href="{{ route('products.export', request()->query()) }}" class="btn btn-outline-theme">Export CSV</a>
+        {{-- Link papunta sa form ng pagdagdag ng product. --}}
+        <a href="{{ route('products.create') }}" class="btn btn-theme">+ Add Product</a>
+    </div>
 </div>
 
-{{-- SEARCH AT FILTER FORM. method="GET" = ang laman ng form ay ilalagay sa URL (hal. ?search=PVC), kaya madaling i-bookmark at gumagana ang pagination. --}}
+{{-- SEARCH AT FILTER FORM. method="GET" = ang laman ay ilalagay sa URL (hal. ?search=PVC), kaya madaling i-bookmark at gumagana ang pagination. --}}
 <form method="GET" action="{{ route('products.index') }}" class="row g-2 mb-3">
-    {{-- Kolum ng search box: kalahati ng lapad sa medium na screen pataas (col-md-6). --}}
-    <div class="col-md-6">
-        {{-- Textbox para sa paghahanap. Ang value ay ang dating tinype (request('search')) para hindi mawala pagkatapos mag-filter. --}}
+    {{-- SEARCH: 4 sa 12 kolum. Ang value ay ang dating tinype para hindi mawala pagkatapos mag-filter. --}}
+    <div class="col-md-4">
         <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by name or SKU...">
     </div>
-    {{-- Kolum ng category dropdown (col-md-3 = isang-kapat ng lapad). --}}
-    <div class="col-md-3">
-        {{-- Dropdown ng category. Ang name="category" ang babasahin ng controller sa $request->category. --}}
+    {{-- CATEGORY DROPDOWN: 2 sa 12 kolum. --}}
+    <div class="col-md-2">
         <select name="category" class="form-select">
-            {{-- Default na opsyon: walang value, ibig sabihin lahat ng category. --}}
             <option value="">All Categories</option>
-            {{-- Paulit-ulit para sa bawat category na ipinasa ng ProductController. --}}
             @foreach ($categories as $cat)
-                {{-- @selected = ilalagay ang "selected" kung ito ang kasalukuyang piniling category, para hindi mawala ang napili. --}}
+                {{-- @selected = ilalagay ang "selected" kung ito ang kasalukuyang piniling category. --}}
                 <option value="{{ $cat }}" @selected(request('category') === $cat)>{{ $cat }}</option>
             @endforeach
         </select>
     </div>
-    {{-- Kolum ng mga button. d-flex gap-2 = magkatabi na may espasyo. --}}
-    <div class="col-md-3 d-flex gap-2">
-        {{-- Filter button: isusumite ang form. btn-outline-theme = purple na may balangkas. --}}
+    {{-- STATUS DROPDOWN: in, low, o out. Ang value ay tumutugma sa filteredQuery() ng controller. --}}
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">All Status</option>
+            <option value="in" @selected(request('status') === 'in')>In Stock</option>
+            <option value="low" @selected(request('status') === 'low')>Low Stock</option>
+            <option value="out" @selected(request('status') === 'out')>Out of Stock</option>
+        </select>
+    </div>
+    {{-- MINIMUM NA PRESYO: type="number" step="0.01" = tumatanggap ng sentimo. --}}
+    <div class="col-6 col-md-1">
+        <input type="number" step="0.01" min="0" name="min_price" value="{{ request('min_price') }}" class="form-control" placeholder="Min ₱">
+    </div>
+    {{-- MAXIMUM NA PRESYO. --}}
+    <div class="col-6 col-md-1">
+        <input type="number" step="0.01" min="0" name="max_price" value="{{ request('max_price') }}" class="form-control" placeholder="Max ₱">
+    </div>
+    {{-- MGA BUTTON: Filter at Reset. --}}
+    <div class="col-md-2 d-flex gap-2">
         <button class="btn btn-outline-theme w-100" type="submit">Filter</button>
-        {{-- Reset link: bumabalik sa /products na walang search at filter. --}}
+        {{-- Reset: bumabalik sa /products na walang filter. --}}
         <a href="{{ route('products.index') }}" class="btn btn-outline-secondary">Reset</a>
     </div>
 </form>
 
-{{-- table-responsive = kapag masikip ang screen (phone), pwedeng i-scroll pahalang ang table imbes na masira ang layout. --}}
+{{-- Ilan ang nahanap sa kabuuan (total() = lahat ng tugma sa lahat ng page). --}}
+<p class="text-muted small mb-2">{{ $products->total() }} product(s) found</p>
+
+{{-- table-responsive = kapag masikip ang screen (phone), pwedeng i-scroll pahalang ang table. --}}
 <div class="table-responsive">
-    {{-- Ang table. table-striped = salitan ang kulay ng rows. table-hover = nagbabago ang kulay kapag dinaanan ng mouse. align-middle = nasa gitna patayo ang laman. shadow-sm = bahagyang anino. bg-white = puting background. --}}
     <table class="table table-striped table-hover align-middle shadow-sm bg-white">
-        {{-- Ulo ng table (mga pamagat ng column). Purple ito dahil sa custom.css. --}}
+        {{-- Ulo ng table. Purple ito dahil sa custom.css. --}}
         <thead>
             <tr>
                 <th>SKU</th>
                 <th>Name</th>
                 <th>Category</th>
-                {{-- text-end = nakahanay sa kanan, para madaling basahin ang mga numero. --}}
                 <th class="text-end">Qty</th>
                 <th class="text-end">Price</th>
                 <th>Status</th>
                 <th class="text-end">Actions</th>
             </tr>
         </thead>
-        {{-- Katawan ng table kung saan ilalagay ang mga row ng produkto. --}}
         <tbody>
-            {{-- @forelse = parang foreach, pero may @empty para sa kapag walang laman ang listahan. --}}
+            {{-- @forelse = parang foreach, pero may @empty para kapag walang laman. --}}
             @forelse ($products as $product)
-                {{-- Isang row para sa bawat produkto. Kapag mababa o wala nang stock (ayon sa mga method ng Product model), nilalagyan ng class na "row-alert" (dilaw na background). Kung hindi, walang class. --}}
+                {{-- Kapag mababa o wala nang stock, nilalagyan ng class na "row-alert" (dilaw na background). --}}
                 <tr class="{{ $product->isLowStock() || $product->isOutOfStock() ? 'row-alert' : '' }}">
-                    {{-- Ipinapakita ang SKU ng produkto. Ang {{ }} ay awtomatikong nag-e-escape ng HTML para ligtas laban sa XSS. --}}
-                    <td>{{ $product->sku }}</td>
-                    {{-- Pangalan ng produkto. --}}
-                    <td>{{ $product->name }}</td>
-                    {{-- Category ng produkto. --}}
+                    {{-- {!! !!} = hindi ine-escape ang HTML dahil <mark> ang ilalagay. Ligtas ito dahil ine-escape muna ng $highlight ang text. --}}
+                    <td>{!! $highlight($product->sku) !!}</td>
+                    <td>{!! $highlight($product->name) !!}</td>
                     <td>{{ $product->category }}</td>
-                    {{-- Dami sa stock, nakahanay sa kanan. --}}
                     <td class="text-end">{{ $product->quantity }}</td>
-                    {{-- Presyo. Ang number_format(..., 2) ay naglalagay ng kuwit at 2 decimal places (hal. 1,200.00). --}}
+                    {{-- number_format(..., 2) = may kuwit at 2 decimal places. --}}
                     <td class="text-end">₱{{ number_format($product->unit_price, 2) }}</td>
-                    {{-- Cell ng status badge. --}}
                     <td>
-                        {{-- Kung wala nang stock: pulang badge. --}}
+                        {{-- Pula kung wala nang stock, dilaw kung mababa, berde kung sapat. --}}
                         @if ($product->isOutOfStock())
                             <span class="badge bg-danger">Out of Stock</span>
-                        {{-- Kung mababa ang stock: dilaw na badge. --}}
                         @elseif ($product->isLowStock())
                             <span class="badge bg-warning text-dark">Low Stock</span>
-                        {{-- Kung hindi, sapat ang stock: berdeng badge. --}}
                         @else
                             <span class="badge bg-success">In Stock</span>
                         @endif
                     </td>
-                    {{-- Cell ng mga action button. text-nowrap = hindi hahatiin sa dalawang linya ang mga button. --}}
+                    {{-- text-nowrap = hindi hahatiin sa dalawang linya ang mga button. --}}
                     <td class="text-end text-nowrap">
-                        {{-- View: pupunta sa detalye ng produkto (GET /products/{id}). --}}
                         <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline-secondary">View</a>
-                        {{-- Edit: pupunta sa edit form (GET /products/{id}/edit). --}}
                         <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-outline-theme">Edit</a>
-                        {{-- Delete form. Kailangan ng form dahil POST/DELETE ang pagbura, hindi pwedeng link. onsubmit = magtatanong muna ng confirm; kapag Cancel, hindi isusumite. --}}
+                        {{-- Delete form: POST/DELETE ang pagbura kaya form, hindi link. onsubmit = magtatanong muna ng confirm. --}}
                         <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline"
                               onsubmit="return confirm('Delete {{ $product->name }}?');">
                             {{-- CSRF token para tanggapin ng Laravel ang form. --}}
                             @csrf
-                            {{-- Ang browser ay POST lang ang kayang ipadala sa form, kaya ginagamit ito para gawing DELETE ang request. --}}
+                            {{-- Ginagawang DELETE ang request (POST lang ang kaya ng browser form). --}}
                             @method('DELETE')
-                            {{-- Delete button: pula na may balangkas. --}}
                             <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                         </form>
                     </td>
                 </tr>
-            {{-- Kapag walang produkto sa listahan (halimbawa walang tugma sa search)... --}}
             @empty
-                {{-- ...isang row na sumasakop sa lahat ng 7 column na may mensaheng "No products found." --}}
+                {{-- Kapag walang produkto: isang row na sumasakop sa 7 column. --}}
                 <tr><td colspan="7" class="text-center text-muted py-4">No products found.</td></tr>
             @endforelse
         </tbody>
     </table>
 </div>
 
-{{-- PAGINATION: ipinapakita ang mga link ng page (1, 2, ...) dahil 10 produkto lang kada page (paginate(10) sa controller). Gumagamit ng Bootstrap 5 na disenyo. --}}
+{{-- PAGINATION: mga link ng page (1, 2, ...), 10 produkto kada page, at kasama ang mga filter. --}}
 {{ $products->links('pagination::bootstrap-5') }}
-{{-- Dulo ng section na "content". --}}
+{{-- Dulo ng content section. --}}
 @endsection

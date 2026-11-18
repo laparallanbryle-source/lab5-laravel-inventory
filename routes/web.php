@@ -1,45 +1,44 @@
 <?php
 
 // Kinukuha ang mga controller na gagamitin sa mga route sa ibaba.
-use App\Http\Controllers\DashboardController; // para sa dashboard na may statistics
-use App\Http\Controllers\ProductController;   // para sa CRUD at stock in/out ng products
+use App\Http\Controllers\DashboardController; // dashboard na may statistics
+use App\Http\Controllers\ProductController;   // CRUD, filter, export, at stock in/out ng products
 use App\Http\Controllers\ProfileController;   // galing sa Breeze, para sa profile ng user
-use App\Http\Controllers\ReportController;    // para sa inventory reports at CSV export
+use App\Http\Controllers\ReportController;    // inventory reports at CSV export
 // Ang Route facade, dito natin dinedefine ang mga URL ng application.
 use Illuminate\Support\Facades\Route;
 
-// HOME PAGE ("/"): kapag binuksan ang pinaka-unang URL...
+// HOME PAGE ("/"): ililipat ang user sa login page.
 Route::get('/', function () {
-    // ...ililipat ang user sa login page (route na may pangalang "login" galing sa Breeze).
     return redirect()->route('login');
 });
 
-// DASHBOARD: GET /dashboard, tinatawag ang index() method ng DashboardController.
+// DASHBOARD: GET /dashboard, tinatawag ang index() ng DashboardController. Kailangang naka-login (auth).
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    // Middleware "auth": kailangang naka-login. Kung hindi, ililipat sa login page.
     ->middleware('auth')
-    // Pangalan ng route. Ginagamit sa route('dashboard') sa mga view para hindi hardcoded ang URL.
     ->name('dashboard');
 
 // GROUP: lahat ng route sa loob nito ay protektado ng "auth" middleware (kailangan ng login).
 Route::middleware('auth')->group(function () {
-    // PROFILE (galing sa Breeze): ipakita ang edit profile page.
+    // DASHBOARD STATS (JSON): ito ang kinukuha ng JavaScript tuwing 15 segundo para sa real-time update.
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
+
+    // PROFILE (galing sa Breeze).
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    // PROFILE: i-save ang pagbabago sa profile (PATCH).
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // PROFILE: burahin ang account (DELETE).
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // EXPORT CSV ng products. DAPAT NASA ITAAS ito ng Route::resource, kung hindi, "export" ang ituturing na {product}.
+    Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
     // RESOURCE ROUTE: isang linya na gumagawa ng 7 route para sa products (index, create, store, show, edit, update, destroy).
     Route::resource('products', ProductController::class);
-    // STOCK IN/OUT: POST /products/{id}/stock, tinatawag ang adjustStock() method. Ang {product} ay ang id ng produkto.
+    // STOCK IN/OUT: POST /products/{id}/stock.
     Route::post('/products/{product}/stock', [ProductController::class, 'adjustStock'])->name('products.stock');
 
-    // REPORTS: ipakita ang inventory report page.
+    // REPORTS: report page at CSV download.
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    // REPORTS: i-download ang inventory bilang CSV file.
     Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 });
 
-// Kinukuha ang mga route ng authentication ng Breeze (login, register, logout, forgot password, atbp.) mula sa routes/auth.php.
+// Mga route ng authentication ng Breeze (login, register, logout, forgot password, atbp.).
 require __DIR__.'/auth.php';

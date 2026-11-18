@@ -20,7 +20,7 @@
     border-color: var(--theme-primary);      /* purple din ang balangkas */
     color: #fff;                             /* puti ang text */
 }
-/* Kapag nilagay ang mouse (:hover) sa .btn-theme, nagiging asul-purple. Ang !important ay hindi kailangan dito. */
+/* Kapag nilagay ang mouse (:hover) sa .btn-theme, nagiging asul-purple. */
 .btn-theme:hover { background-color: var(--theme-secondary); border-color: var(--theme-secondary); color: #fff; }
 
 /* .btn-outline-theme = button na may purple na balangkas at text lang (hal. Edit, Filter, Print). */
@@ -36,6 +36,10 @@
     border-color: var(--theme-primary);                    /* purple na balangkas */
     box-shadow: 0 0 0 0.2rem rgba(109, 87, 214, 0.25);     /* malabong purple na glow sa paligid (25% opacity) */
 }
+
+/* ===== CHECKBOX (Remember me) =====
+   Kapag naka-check ang checkbox, purple ang kulay imbes na asul ng Bootstrap. */
+.form-check-input:checked { background-color: var(--theme-primary); border-color: var(--theme-primary); }
 
 /* ===== LOW STOCK ===== */
 
@@ -90,37 +94,20 @@
     border-radius: 12px;      /* bilugang sulok */
 }
 
-/* Ang mga button ng Breeze (hal. Log in): ginagawang purple.
-   Ang .bg-gray-800 ay ang default na itim na kulay ng Breeze.
-   Ang !important ay kailangan para ma-override ang inline na kulay ng Tailwind. */
-.auth-card button[type="submit"],
-.auth-card .bg-gray-800 {
-    background-color: #6D57D6 !important;
-    color: #fff !important;
-    transition: background-color 0.2s ease;   /* malambot na pagbabago ng kulay */
-}
-
-/* Kapag nilagay ang mouse sa button, nagiging asul-purple. */
-.auth-card button[type="submit"]:hover,
-.auth-card .bg-gray-800:hover {
-    background-color: #586BD6 !important;
-}
-
-/* Focus ng mga input sa login: purple na balangkas at glow imbes na ang default ng Tailwind. */
-.auth-card input:focus {
-    border-color: #6D57D6 !important;
-    box-shadow: 0 0 0 3px rgba(109, 87, 214, 0.25) !important;
-}
-
 /* Mga link (hal. "Forgot your password?") ay purple, at asul-purple kapag dinaanan ng mouse. */
 .auth-card a { color: #6D57D6; }
 .auth-card a:hover { color: #586BD6; }
-/* Kulay ng checkbox ("Remember me") ay purple. */
-.auth-card input[type="checkbox"] { color: #6D57D6; }
 
 /* ===== RESPONSIVE =====
    Ang @media ay tumatakbo lang kung ang lapad ng screen ay 576px o mas maliit (phone). */
 @media (max-width: 576px) {
     .auth-title { font-size: 1.5rem; }   /* mas maliit na pamagat sa phone */
     h2 { font-size: 1.4rem; }            /* mas maliit na heading sa phone para hindi masikip */
+}
+/* ===== HIGHLIGHT NG SEARCH =====
+   Ang <mark> ay ginagamit sa products table para i-highlight ang hinanap na salita. */
+mark {
+    background-color: rgba(193, 97, 214, 0.3);   /* mapusyaw na rosas-lila */
+    padding: 0 2px;                               /* maliit na espasyo sa magkabilang gilid */
+    border-radius: 3px;                           /* bahagyang bilugan */
 }

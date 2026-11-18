@@ -1,47 +1,52 @@
+{{-- Ginagamit ang guest layout (purple na background at card). --}}
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <h4 class="text-center mb-3">Log in</h4>
 
+    {{-- Mensahe galing sa session (hal. pagkatapos mag-reset ng password). --}}
+    @if (session('status'))
+        <div class="alert alert-success">{{ session('status') }}</div>
+    @endif
+
+    {{-- POST papunta sa login route ng Breeze. --}}
     <form method="POST" action="{{ route('login') }}">
+        {{-- CSRF token; kung wala ito, error 419. --}}
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        {{-- EMAIL --}}
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            {{-- old('email') = ibinabalik ang tinype kapag nagkamali. is-invalid = pulang balangkas kapag may error. --}}
+            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
+                   class="form-control @error('email') is-invalid @enderror">
+            {{-- Mensahe ng error sa ilalim ng field. --}}
+            @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        {{-- PASSWORD --}}
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input id="password" type="password" name="password" required autocomplete="current-password"
+                   class="form-control @error('password') is-invalid @enderror">
+            @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
+        {{-- REMEMBER ME: pananatilihin ang login kahit isara ang browser. --}}
+        <div class="form-check mb-3">
+            <input id="remember_me" type="checkbox" name="remember" class="form-check-input">
+            <label for="remember_me" class="form-check-label">Remember me</label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        {{-- Forgot password link sa kaliwa, Log in button sa kanan. --}}
+        <div class="d-flex justify-content-between align-items-center">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
+                <a href="{{ route('password.request') }}" class="small">Forgot your password?</a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
+            <button type="submit" class="btn btn-theme">Log in</button>
         </div>
     </form>
+
+    {{-- Link papunta sa register page. --}}
+    @if (Route::has('register'))
+        <p class="text-center small mt-3 mb-0">No account yet? <a href="{{ route('register') }}">Register</a></p>
+    @endif
 </x-guest-layout>

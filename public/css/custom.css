@@ -1,93 +1,126 @@
+/* ===== MGA CSS VARIABLE (kulay ng theme) =====
+   Ang :root ay ang pinakaugat ng page. Ang mga variable na nakalagay dito (--pangalan)
+   ay magagamit sa buong CSS gamit ang var(--pangalan). Kapag gusto mong palitan ang kulay
+   ng buong system, dito mo lang babaguhin. Ito ang purple palette mula sa Lab 4. */
 :root {
-    --theme-primary: #6D57D6;
-    --theme-secondary: #586BD6;
-    --theme-accent: #A372D6;
-    --theme-pink: #C161D6;
+    --theme-primary: #6D57D6;    /* pangunahing purple: navbar, buttons, table header */
+    --theme-secondary: #586BD6;  /* asul-purple: ginagamit kapag nilagay ang mouse sa button (hover) */
+    --theme-accent: #A372D6;     /* lila: dagdag na accent */
+    --theme-pink: #C161D6;       /* rosas-lila: guhit sa low stock alert */
 }
 
 /* ===== NAVBAR AT BUTTONS ===== */
+
+/* Ang class na app-navbar (nasa navbar ng inventory.blade.php) ay nagiging purple. */
 .app-navbar { background-color: var(--theme-primary); }
 
+/* .btn-theme = ang purple na button (hal. Add Product, Save, Update, Export CSV). */
 .btn-theme {
-    background-color: var(--theme-primary);
-    border-color: var(--theme-primary);
-    color: #fff;
+    background-color: var(--theme-primary);  /* purple na background */
+    border-color: var(--theme-primary);      /* purple din ang balangkas */
+    color: #fff;                             /* puti ang text */
 }
+/* Kapag nilagay ang mouse (:hover) sa .btn-theme, nagiging asul-purple. Ang !important ay hindi kailangan dito. */
 .btn-theme:hover { background-color: var(--theme-secondary); border-color: var(--theme-secondary); color: #fff; }
 
+/* .btn-outline-theme = button na may purple na balangkas at text lang (hal. Edit, Filter, Print). */
 .btn-outline-theme { color: var(--theme-primary); border-color: var(--theme-primary); }
+/* Kapag nilagay ang mouse, napupuno ng purple at nagiging puti ang text. */
 .btn-outline-theme:hover { background-color: var(--theme-primary); color: #fff; }
 
-/* ===== FORM FOCUS ===== */
+/* ===== FORM FOCUS =====
+   Ang :focus ay kapag kinlick o pinili ng user ang textbox o dropdown.
+   Ino-override natin ang default na asul na glow ng Bootstrap para tumugma sa purple na theme.
+   Ang comma (,) ay nagpapahintulot na isang style lang para sa dalawang selector. */
 .form-control:focus, .form-select:focus {
-    border-color: var(--theme-primary);
-    box-shadow: 0 0 0 0.2rem rgba(109, 87, 214, 0.25);
+    border-color: var(--theme-primary);                    /* purple na balangkas */
+    box-shadow: 0 0 0 0.2rem rgba(109, 87, 214, 0.25);     /* malabong purple na glow sa paligid (25% opacity) */
 }
 
 /* ===== LOW STOCK ===== */
+
+/* .row-alert = dilaw na background ng row sa table kapag low stock o out of stock.
+   Ang !important ay para siguradong manalo ito laban sa "table-striped" ng Bootstrap. */
 .row-alert { background-color: #fff3cd !important; }
+/* .alert-low-stock = makapal na 5px na pink-purple na guhit sa kaliwa ng alert sa dashboard. */
 .alert-low-stock { border-left: 5px solid var(--theme-pink); }
 
 /* ===== CARDS AT TABLES ===== */
+
+/* Lahat ng card: tinatanggal ang balangkas at nilalagyan ng bilugang sulok (10px). */
 .card { border: none; border-radius: 10px; }
 
+/* Header ng lahat ng table (thead th): purple na background, puting text, at walang balangkas. */
 .table thead th {
     background-color: var(--theme-primary);
     color: #fff;
     border: none;
 }
 
+/* Ang transition ay gumagawa ng malambot na pagbabago ng kulay ng row sa loob ng 0.2 segundo
+   imbes na biglaan kapag dinaanan ng mouse. */
 .table-hover tbody tr { transition: background-color 0.2s ease; }
+/* Kapag dinaanan ng mouse ang row, nagiging mapusyaw na purple (8% opacity). */
 .table-hover tbody tr:hover { background-color: rgba(109, 87, 214, 0.08); }
 
 /* ===== AUTH PAGES (login, register, forgot password) ===== */
+
+/* Background ng buong login page: gradient mula purple (#6D57D6) papuntang lila (#A372D6), nakatagilid sa 135 degrees. */
 .auth-wrapper {
     background: linear-gradient(135deg, #6D57D6 0%, #A372D6 100%);
 }
 
+/* Malaking pamagat na "Hardware IMS" sa login page. */
 .auth-title {
-    color: #fff;
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0;
+    color: #fff;          /* puti */
+    font-size: 2rem;      /* malaking letra */
+    font-weight: 700;     /* makapal */
+    margin: 0;            /* walang espasyo sa paligid */
 }
 
+/* Maliit na paliwanag sa ilalim ng pamagat. */
 .auth-subtitle {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.85);   /* puti na bahagyang transparent (85%) */
     margin: 0;
 }
 
+/* Ang puting kahon (card) ng login form. */
 .auth-card {
-    background-color: #fff;
-    border-radius: 12px;
+    background-color: #fff;   /* puti */
+    border-radius: 12px;      /* bilugang sulok */
 }
 
-/* Breeze primary buttons -> theme color */
+/* Ang mga button ng Breeze (hal. Log in): ginagawang purple.
+   Ang .bg-gray-800 ay ang default na itim na kulay ng Breeze.
+   Ang !important ay kailangan para ma-override ang inline na kulay ng Tailwind. */
 .auth-card button[type="submit"],
 .auth-card .bg-gray-800 {
     background-color: #6D57D6 !important;
     color: #fff !important;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease;   /* malambot na pagbabago ng kulay */
 }
 
+/* Kapag nilagay ang mouse sa button, nagiging asul-purple. */
 .auth-card button[type="submit"]:hover,
 .auth-card .bg-gray-800:hover {
     background-color: #586BD6 !important;
 }
 
-/* Input focus */
+/* Focus ng mga input sa login: purple na balangkas at glow imbes na ang default ng Tailwind. */
 .auth-card input:focus {
     border-color: #6D57D6 !important;
     box-shadow: 0 0 0 3px rgba(109, 87, 214, 0.25) !important;
 }
 
-/* Links at checkbox */
+/* Mga link (hal. "Forgot your password?") ay purple, at asul-purple kapag dinaanan ng mouse. */
 .auth-card a { color: #6D57D6; }
 .auth-card a:hover { color: #586BD6; }
+/* Kulay ng checkbox ("Remember me") ay purple. */
 .auth-card input[type="checkbox"] { color: #6D57D6; }
 
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE =====
+   Ang @media ay tumatakbo lang kung ang lapad ng screen ay 576px o mas maliit (phone). */
 @media (max-width: 576px) {
-    .auth-title { font-size: 1.5rem; }
-    h2 { font-size: 1.4rem; }
+    .auth-title { font-size: 1.5rem; }   /* mas maliit na pamagat sa phone */
+    h2 { font-size: 1.4rem; }            /* mas maliit na heading sa phone para hindi masikip */
 }

@@ -24,6 +24,9 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}" href="{{ route('products.index') }}">Products</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}">Reports</a>
+                </li>
             </ul>
             <span class="text-white me-3">{{ Auth::user()->name }}</span>
             <form method="POST" action="{{ route('logout') }}" class="d-inline">
